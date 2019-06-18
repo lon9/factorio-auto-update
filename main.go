@@ -78,6 +78,11 @@ func main() {
 	flag.StringVar(&webhookURL, "w", "", "Webhook url for a notification")
 	flag.Parse()
 
+	// Validate flags
+	if username == "" && token == "" {
+		log.Fatal("username(-u) and token(-t) must be set")
+	}
+
 	// Searching local mods
 	files, err := ioutil.ReadDir(modDir)
 	if err != nil {
@@ -137,10 +142,12 @@ func main() {
 				panic(err)
 			}
 			isModUpdated = true
-			if err := inco.Incoming(webhookURL, &inco.Message{
-				Text: fmt.Sprintf("Updated %s (%s -> %s)", newestMod.Title, localVersion, newestVersion),
-			}); err != nil {
-				panic(err)
+			if webhookURL != "" {
+				if err := inco.Incoming(webhookURL, &inco.Message{
+					Text: fmt.Sprintf("Updated %s (%s -> %s)", newestMod.Title, localVersion, newestVersion),
+				}); err != nil {
+					panic(err)
+				}
 			}
 		}
 	}
@@ -160,10 +167,12 @@ func main() {
 		if err := updateServer(composePath, composeFilePath, serviceName); err != nil {
 			panic(err)
 		}
-		if err := inco.Incoming(webhookURL, &inco.Message{
-			Text: "Server updated",
-		}); err != nil {
-			panic(err)
+		if webhookURL != "" {
+			if err := inco.Incoming(webhookURL, &inco.Message{
+				Text: "Server updated",
+			}); err != nil {
+				panic(err)
+			}
 		}
 	}
 }
