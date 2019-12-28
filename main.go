@@ -14,6 +14,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"time"
 
@@ -55,6 +56,8 @@ type LocalMod struct {
 	Version  string
 }
 
+var versionRe = regexp.MustCompile(`.*_(.*)`)
+
 func main() {
 
 	// Parse flags
@@ -93,9 +96,12 @@ func main() {
 		ext := path.Ext(file.Name())
 		if ext == ".zip" {
 			base := strings.ReplaceAll(file.Name(), ext, "")
-			splitted := strings.Split(base, "_")
-			modName := splitted[0]
-			version := splitted[1]
+			versionString := versionRe.FindStringSubmatch(base)
+			if len(versionString) < 2 {
+				panic(errors.New("Invalid filename"))
+			}
+			version := versionString[1]
+			modName := strings.ReplaceAll(base, versionString[1], "")
 			localMods[modName] = &LocalMod{
 				Name:     modName,
 				FileName: file.Name(),
