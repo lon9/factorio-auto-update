@@ -101,7 +101,7 @@ func main() {
 				panic(errors.New("Invalid filename"))
 			}
 			version := versionString[1]
-			modName := strings.ReplaceAll(base, versionString[1], "")
+			modName := strings.ReplaceAll(base, "_"+versionString[1], "")
 			localMods[modName] = &LocalMod{
 				Name:     modName,
 				FileName: file.Name(),
